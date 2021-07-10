@@ -1,3 +1,16 @@
+# Jeopardy Game
+
+This project was created using React and styled with custom CSS
+
+## Demo
+![](JeopardyDemo.gif)
+
+## Features 
+- 10000+ questions to play with, 24 different categories to choose from
+- Casual Mode: Take as much time as you want, choose the difficulty of questions and submit answers as many times as you'd like
+- Competitive Mode: Choose the number of rounds, and play against the clock, seeing who can accumulate the most money before the timer runs out
+- Questions pulled from the Open Trivia DB.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
