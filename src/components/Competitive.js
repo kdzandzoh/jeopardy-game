@@ -15,6 +15,8 @@ function Competitive(props) {
     const [team1, setTeam1] = useState(0)
     const [team2, setTeam2] = useState(0)
 
+    let total = 1
+
     function handleRoundChange(e) {
       setTargetRound(parseInt(e.target.value))
     }
@@ -41,12 +43,21 @@ function Competitive(props) {
     }
 
     function endGame() {
-      let winner = 1
-      team1 > team2 ? winner = 1 : winner = 2
-      let text = document.createTextNode(`Team ${winner} won! Congratulations!`)
-      if (team1 === team2) {
-        text = document.createTextNode('It was a tie, play again!')
+      let winner;
+      let text;
+
+      if (team1 === team2+total) {
+        text = document.createTextNode(`It was a tie! Play again!`)
       }
+      else if (team1 > team2+total) {
+        winner = 1
+        text = document.createTextNode(`Team ${winner} won! Congratulations!`)
+      }
+      else if (team1 < team2+total) {
+        winner = 2
+        text = document.createTextNode(`Team ${winner} won! Congratulations!`)
+      }
+
       const header = document.createElement('h1')
       header.classList.add('center')
       header.id='winner-text'
@@ -55,11 +66,11 @@ function Competitive(props) {
       document.querySelector('#generate').disabled = true
       
       document.querySelector('#new-round').classList.remove('invisible')
-      document.querySelector('#number-of-players').style.display = 'block'
+      document.querySelector('#number-of-rounds').style.display = 'block'
     }
 
     function submitAnswers(e) {
-        let total = 0
+        total = 0
 
         document.querySelector('#start-round').disabled = true
     
@@ -100,14 +111,14 @@ function Competitive(props) {
         if (team1Turn) {
             // Team 1 just played
             setTeam1Turn(false)
-            setTeam1(team1 + parseInt(document.querySelector('.score').innerHTML.substring(1)))
+            setTeam1(team1+total)
             document.querySelector('#team1').classList.toggle('active-team')
             document.querySelector('#team2').classList.toggle('active-team')
         }
         else {
             // Team 2 just played
             setTeam1Turn(true)
-            setTeam2(team2 + parseInt(document.querySelector('.score').innerHTML.substring(1)))
+            setTeam2(team2+total)
             document.querySelector('#team1').classList.toggle('active-team')
             document.querySelector('#team2').classList.toggle('active-team')
         }

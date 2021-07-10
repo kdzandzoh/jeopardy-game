@@ -16,7 +16,7 @@ export class Generator extends Component {
                             </select>
                         </div>
                     ) : null}
-                    <div id="number-of-players">
+                    <div id="number-of-rounds">
                         {this.props.casualMode ? 
                         (
                         <>
@@ -27,7 +27,7 @@ export class Generator extends Component {
                         :
                         (
                         <div>
-                            <p>Number of players: </p>
+                            <p>Number of rounds: </p>
                             <input type="number" onChange={ this.props.handleRoundChange }/>
                         </div>
                         )

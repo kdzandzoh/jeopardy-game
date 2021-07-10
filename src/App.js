@@ -12,125 +12,130 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState({category: '', id: 0})
   const [casualMode, setCasualMode] = useState(true)
 
-  useEffect(() => {
-    fetchCategories()
-  }, [])
+// Load in categories from API
+useEffect(() => {
+  fetchCategories()
+}, [])
 
+function fetchCategories() {
+  const url = 'https://opentdb.com/api_category.php'
+  fetch(url)
+    .then(res => res.json())
+    .then(data => setCategories(data.trivia_categories))
+}
+
+// Clean up the strings from the API
 function decodeString(str) {
   const textArea = document.createElement('textarea')
   textArea.innerHTML = str
   return textArea.value
 }
 
-  function handleSelectedCategory(e) {
-    categories.forEach((category) => {
-      if (category.name === e.target.value) {
-          setSelectedCategory({
-            category: category.name,
-            id: category.id
-          })
-          return
-      }
-    })
-  }
-
-  function fetchCategories() {
-    const url = 'https://opentdb.com/api_category.php'
-    fetch(url)
-      .then(res => res.json())
-      .then(data => setCategories(data.trivia_categories))
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!casualMode) {
-      document.querySelector('#start-round').disabled = false
-      document.querySelector('#number-of-players').style.display = 'none'
+function handleSelectedCategory(e) {
+  categories.forEach(category => {
+    if (category.name === e.target.value) {
+        setSelectedCategory({
+          category: category.name,
+          id: category.id
+        })
+        return
     }
-    let url = `https://opentdb.com/api.php?amount=${amountOfQuestions}&category=${selectedCategory.id}`
-    if (difficulty !== 'Any') {
-      url = url + `&difficulty=${difficulty}`
-    }
-    console.log(url)
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setResults(data.results.map((question, index) => {
-          const answer = decodeString(question.correct_answer)
-          const options = [...question.incorrect_answers.map(a => decodeString(a)), answer]
-          return {
-            id: `${index}`,
-            question: decodeString(question.question),
-            difficulty: question.difficulty,
-            answer,
-            options: options.sort(() => Math.random() - .5)
-          }
-        }))
-        resetStyles()
-      })
+  })
+}
+
+function handleQuestionChange(e) {
+  setAmountOfQuestions(e.target.value)
+}
+
+function handleDifficulty(e) {
+  setDifficulty(e.target.value.toLowerCase())
+}
+
+function setCasual() {
+  if (!casualMode) {
+    setCasualMode(true)
+    document.querySelector('.cooler').classList.toggle('invisible')
+    document.getElementById('comp').classList.toggle('active')
+    document.getElementById('casual').classList.toggle('active')
+    resetButton()
+  }
+}
+
+function setCompetitive() {
+  if (casualMode) {
+    setCasualMode(false)
+    resetButton()
+    document.querySelector('.cooler').classList.toggle('invisible')
+    document.getElementById('comp').classList.toggle('active')
+    document.getElementById('casual').classList.toggle('active')
+  }
+}
+
+// Handle user click -> 'Generate'
+function handleSubmit(e) {
+  e.preventDefault();
+  if (!casualMode) {
+    document.querySelector('#start-round').disabled = false
+    document.querySelector('#number-of-rounds').style.display = 'none'
   }
 
+  let url = `https://opentdb.com/api.php?amount=${amountOfQuestions}&category=${selectedCategory.id}`
+  if (difficulty !== 'Any') {
+    url = url + `&difficulty=${difficulty}`
+  }
 
-  function resetStyles() {
-    const trivia_questions = document.querySelectorAll('.trivia-card')
-    trivia_questions.forEach(trivia => {
-      if (casualMode) {
-        trivia.classList.add('white-bg')
-      }
-      else {
-        trivia.classList.add('hide-questions')
-        trivia.classList.remove('incorrect')
-        trivia.classList.remove('correct')
-      }
-      const r = trivia.getElementsByTagName('input')
-      for (const child of r) {
-        if (child.checked) {
-          child.checked = false
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      setResults(data.results.map((question, index) => {
+        const answer = decodeString(question.correct_answer)
+        const options = [...question.incorrect_answers.map(a => decodeString(a)), answer]
+        return {
+          id: `${index}`,
+          question: decodeString(question.question),
+          difficulty: question.difficulty,
+          answer,
+          options: options.sort(() => Math.random() - .5)
         }
-      }
+      }))
+      resetStyles()
     })
-    document.querySelector('.score').innerHTML = ''
-  }
+}
 
-  function resetButton() {
-    setAmountOfQuestions(10)
-    setDifficulty('Any')
+
+function resetStyles() {
+  const trivia_questions = document.querySelectorAll('.trivia-card')
+  trivia_questions.forEach(trivia => {
     if (casualMode) {
-      document.querySelector('input').value = ''
-      document.querySelector('select').value = document.querySelector('select').options[0].value
+      trivia.classList.add('white-bg')
     }
-    resetStyles()
-    setResults([])
-  }
-
-  function handleQuestionChange(e) {
-    setAmountOfQuestions(e.target.value)
-    console.log(amountOfQuestions)
-  }
-
-  function handleDifficulty(e) {
-    setDifficulty(e.target.value.toLowerCase())
-  }
-
-  function setCasual() {
-    if (!casualMode) {
-      setCasualMode(true)
-      document.querySelector('.cooler').classList.toggle('invisible')
-      document.getElementById('comp').classList.toggle('active')
-      document.getElementById('casual').classList.toggle('active')
-      resetButton()
+    else {
+      trivia.classList.add('hide-questions')
+      trivia.classList.remove('incorrect')
+      trivia.classList.remove('correct')
     }
-  }
-
-  function setCompetitive() {
-    if (casualMode) {
-      setCasualMode(false)
-      resetButton()
-      document.querySelector('.cooler').classList.toggle('invisible')
-      document.getElementById('comp').classList.toggle('active')
-      document.getElementById('casual').classList.toggle('active')
+    const r = trivia.getElementsByTagName('input')
+    for (const child of r) {
+      if (child.checked) {
+        child.checked = false
+      }
     }
+  })
+  document.querySelector('.score').innerHTML = ''
+}
+
+function resetButton() {
+  setAmountOfQuestions(10)
+  setDifficulty('Any')
+  if (casualMode) {
+    document.querySelector('input').value = ''
+    document.querySelector('select').value = document.querySelector('select').options[0].value
   }
+  resetStyles()
+  setResults([])
+}
+
+  
 
   function submitAnswers(e) {
     let count = 0
